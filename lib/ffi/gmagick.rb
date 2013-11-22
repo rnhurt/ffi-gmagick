@@ -1,8 +1,8 @@
 require "ffi"
+require "ffi/gmagick/image"
 require "ffi/gmagick/version"
 
 module FFI
-  ##
   # FFI::GMagick is an FFI binding for the GraphicsMagick MagickWand image library.
   # Basic usage is as following:
   #
@@ -22,22 +22,32 @@ module FFI
     extend  FFI::Library
     ffi_lib "GraphicsMagickWand"
 
-    enum :filter_type, [:UndefinedFilter, :PointFilter, :BoxFilter, :TriangleFilter,
-                        :HermiteFilter, :HanningFilter, :HammingFilter, :BlackmanFilter,
-                        :GaussianFilter, :QuadraticFilter, :CubicFilter, :CatromFilter,
-                        :MitchellFilter, :LanczosFilter, :BesselFilter, :SincFilter]
+    enum :filter_type,        [:UndefinedFilter, :PointFilter, :BoxFilter, :TriangleFilter,
+                              :HermiteFilter, :HanningFilter, :HammingFilter, :BlackmanFilter,
+                              :GaussianFilter, :QuadraticFilter, :CubicFilter, :CatromFilter,
+                              :MitchellFilter, :LanczosFilter, :BesselFilter, :SincFilter]
 
-    enum :colorspace,  [:UndefinedColorspace, :RGBColorspace, :GRAYColorspace,
-                        :TransparentColorspace, :OHTAColorspace, :XYZColorspace, :YCCColorspace,
-                        :YIQColorspace, :YPbPrColorspace, :YUVColorspace, :CMYKColorspace,
-                        :sRGBColorspace, :HSLColorspace, :HWBColorspace, :LABColorspace,
-                        :CineonLogRGBColorspace, :Rec601LumaColorspace, :Rec601YCbCrColorspace,
-                        :Rec709LumaColorspace, :Rec709YCbCrColorspace]
-    enum :gravity_type, [:ForgetGravity, :NorthWestGravity, :NorthGravity, :NorthEastGravity,
-                        :WestGravity, :CenterGravity, :EastGravity, :SouthWestGravity,
-                        :SouthGravity, :SouthEastGravity]
+    enum :colorspace,         [:UndefinedColorspace, :RGBColorspace, :GRAYColorspace,
+                              :TransparentColorspace, :OHTAColorspace, :XYZColorspace, :YCCColorspace,
+                              :YIQColorspace, :YPbPrColorspace, :YUVColorspace, :CMYKColorspace,
+                              :sRGBColorspace, :HSLColorspace, :HWBColorspace, :LABColorspace,
+                              :CineonLogRGBColorspace, :Rec601LumaColorspace, :Rec601YCbCrColorspace,
+                              :Rec709LumaColorspace, :Rec709YCbCrColorspace]
+    enum :gravity_type,       [:ForgetGravity, :NorthWestGravity, :NorthGravity, :NorthEastGravity,
+                              :WestGravity, :CenterGravity, :EastGravity, :SouthWestGravity,
+                              :SouthGravity, :SouthEastGravity]
+    enum :composite_operator, [:UndefinedCompositeOp, :OverCompositeOp, :InCompositeOp, :OutCompositeOp,
+                              :AtopCompositeOp, :XorCompositeOp, :PlusCompositeOp, :MinusCompositeOp,
+                              :AddCompositeOp, :SubtractCompositeOp, :DifferenceCompositeOp, :BumpmapCompositeOp,
+                              :CopyCompositeOp, :CopyRedCompositeOp, :CopyGreenCompositeOp, :CopyBlueCompositeOp,
+                              :CopyOpacityCompositeOp, :ClearCompositeOp, :DissolveCompositeOp, :DisplaceCompositeOp,
+                              :ModulateCompositeOp, :ThresholdCompositeOp, :NoCompositeOp, :DarkenCompositeOp,
+                              :LightenCompositeOp, :HueCompositeOp, :SaturateCompositeOp, :ColorizeCompositeOp,
+                              :LuminizeCompositeOp, :ScreenCompositeOp, :OverlayCompositeOp, :CopyCyanCompositeOp,
+                              :CopyMagentaCompositeOp, :CopyYellowCompositeOp, :CopyBlackCompositeOp, :DivideCompositeOp]
 
     typedef :pointer, :wand
+    typedef :pointer, :composite_wand
     typedef :pointer, :blob
     typedef :pointer, :profile
     typedef :string,  :name
@@ -87,6 +97,7 @@ module FFI
     attach_function :MagickGetImageColorspace,    [ :wand ], :colorspace
     attach_function :MagickGetImageDepth,         [ :wand ], :depth
     attach_function :MagickSetImageDepth,         [ :wand, :depth ], :magick_pass_fail
+    attach_function :MagickGetImageSize,          [ :wand ], :ulong
 
     attach_function :MagickSetCompressionQuality, [ :wand, :quality ], :magick_pass_fail
     attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
@@ -100,9 +111,9 @@ module FFI
     attach_function :MagickResizeImage,           [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
     attach_function :MagickResampleImage,         [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail
     attach_function :MagickTransformImage,        [ :wand, :crop, :geometry ], :wand
-    # attach_function :MagickSetImageGravity,       [ :wand, :gravity_type ], :magick_pass_fail
     attach_function :MagickScaleImage,            [ :wand, :columns, :rows ], :magick_pass_fail
     attach_function :MagickCropImage,             [ :wand, :width, :height, :x, :y ], :magick_pass_fail
+    attach_function :MagickCompositeImage,        [ :wand, :composite_wand, :composite_operator, :x, :y ], :magick_pass_fail
 
     attach_function :MagickGetConfigureInfo,      [ :wand, :string ], :string
     attach_function :MagickGetVersion,            [ :pointer ], :string
