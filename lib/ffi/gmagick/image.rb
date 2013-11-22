@@ -100,7 +100,7 @@ module FFI
       # Optionally, it will create a square thumbnail based on the given width.
       #
       # Returns a new image object
-      def thumbnail(new_width, new_height, square=false)
+      def thumbnail(new_width, new_height=new_width, square=false)
         local_wand = FFI::GMagick::Image.new(@wand)
 
         width       = local_wand.width
@@ -110,27 +110,21 @@ module FFI
 
         p "existing width(#{width}) & height(#{height})"
         p "     new width(#{new_width}) & height(#{new_height})"
-        if square
-          if new_width != width || new_height != height
-            scale = [new_width/width, new_height/height].max
-            local_wand.resize(scale*width+0.5, scale*height+0.5)
-          end
 
-          width  = local_wand.width
-          height = local_wand.height
-          new_height = new_width
-          p "  square width(#{width}) & height(#{height})"
-          p "     new_width(#{new_width}) & new_height(#{new_height})"
-          if new_width != width || new_height != height
-            local_wand.crop(new_width, new_height)
-          end
-        else
-          p "  non-square width(#{width}) & height(#{height})"
-          p "         new width(#{new_width}) & height(#{new_height})"
-          if new_width != width || new_height != height
-            scale = [new_width/width, new_height/height].max
-            local_wand.resize(scale*width, scale*height)
-          end
+        new_height = new_width if square
+
+        if new_width != width || new_height != height
+          scale = [new_width/width, new_height/height].max
+          local_wand.resize(scale*width+0.5, scale*height+0.5)
+        end
+
+        width  = local_wand.width
+        height = local_wand.height
+        # new_height = new_width
+        p "  square width(#{width}) & height(#{height})"
+        p "     new_width(#{new_width}) & new_height(#{new_height})"
+        if new_width != width || new_height != height
+          local_wand.crop(new_width, new_height)
         end
 
         return local_wand
