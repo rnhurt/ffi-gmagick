@@ -108,10 +108,7 @@ module FFI
         new_width   = new_width.to_f
         new_height  = new_height.to_f
 
-        p "existing width(#{width}) & height(#{height})"
-        p "     new width(#{new_width}) & height(#{new_height})"
-
-        new_height = new_width if square
+        new_height  = new_width if square
 
         if new_width != width || new_height != height
           scale = [new_width/width, new_height/height].max
@@ -120,9 +117,6 @@ module FFI
 
         width  = local_wand.width
         height = local_wand.height
-        # new_height = new_width
-        p "  square width(#{width}) & height(#{height})"
-        p "     new_width(#{new_width}) & new_height(#{new_height})"
         if new_width != width || new_height != height
           local_wand.crop(new_width, new_height)
         end
