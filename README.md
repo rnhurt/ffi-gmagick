@@ -1,6 +1,5 @@
-# Ffi::Gmagick
+# FFI::GMagick
 
-TODO: Write a gem description
 
 ## Installation
 
