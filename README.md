@@ -6,7 +6,7 @@ the command line interfaces.  These are great Gems but I needed to work with ima
 and not hit the hard drive at all.  So, I created this Gem to allow me to work with images
 completely in RAM without touching the file system at all.
 
-[![Build Status](https://travis-ci.org/rnhurt/ffi-gmagick.png)(https://travis-ci.org/rnhurt/ffi-gmagick)
+[![Build Status](https://travis-ci.org/rnhurt/ffi-gmagick.png)](https://travis-ci.org/rnhurt/ffi-gmagick)
 
 ## Installation
 
