@@ -22,6 +22,8 @@ module FFI
     extend  FFI::Library
     ffi_lib "GraphicsMagickWand"
 
+    enum :interlace_type,     [:UndefinedInterlace, :NoInterlace, :LineInterlace, :PlaneInterlace, :PartitionInterlace]
+
     enum :filter_type,        [:UndefinedFilter, :PointFilter, :BoxFilter, :TriangleFilter,
                               :HermiteFilter, :HanningFilter, :HammingFilter, :BlackmanFilter,
                               :GaussianFilter, :QuadraticFilter, :CubicFilter, :CatromFilter,
@@ -33,9 +35,11 @@ module FFI
                               :sRGBColorspace, :HSLColorspace, :HWBColorspace, :LABColorspace,
                               :CineonLogRGBColorspace, :Rec601LumaColorspace, :Rec601YCbCrColorspace,
                               :Rec709LumaColorspace, :Rec709YCbCrColorspace]
+
     enum :gravity_type,       [:ForgetGravity, :NorthWestGravity, :NorthGravity, :NorthEastGravity,
                               :WestGravity, :CenterGravity, :EastGravity, :SouthWestGravity,
                               :SouthGravity, :SouthEastGravity]
+
     enum :composite_operator, [:UndefinedCompositeOp, :OverCompositeOp, :InCompositeOp, :OutCompositeOp,
                               :AtopCompositeOp, :XorCompositeOp, :PlusCompositeOp, :MinusCompositeOp,
                               :AddCompositeOp, :SubtractCompositeOp, :DifferenceCompositeOp, :BumpmapCompositeOp,
@@ -78,8 +82,6 @@ module FFI
     typedef :size_t,  :length
 
 
-    require_relative "gmagick/struct"
-
 
     attach_function :NewMagickWand,               [], :wand
     attach_function :CloneMagickWand,             [ :wand ], :wand
@@ -95,6 +97,7 @@ module FFI
     attach_function :MagickGetImageWidth,         [ :wand ], :ulong
     attach_function :MagickGetImageAttribute,     [ :wand, :string ], :string
     attach_function :MagickGetImageColorspace,    [ :wand ], :colorspace
+    attach_function :MagickSetImageColorspace,    [ :wand, :colorspace ], :magick_pass_fail
     attach_function :MagickGetImageDepth,         [ :wand ], :depth
     attach_function :MagickSetImageDepth,         [ :wand, :depth ], :magick_pass_fail
     attach_function :MagickGetImageSize,          [ :wand ], :ulong
@@ -103,10 +106,13 @@ module FFI
     attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
     attach_function :MagickUnsharpMaskImage,      [ :wand, :radius, :sigma, :amount, :threshold ], :magick_pass_fail
     attach_function :MagickQuantizeImage,         [ :wand, :number_colors, :colorspace, :tree_depth, :dither, :measure_error ], :magick_pass_fail
+    attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
 
     attach_function :MagickProfileImage,          [ :wand, :name, :profile, :length], :magick_pass_fail
     attach_function :MagickGetImageProfile,       [ :wand, :name, :profile ], :profile
     attach_function :MagickSetImageProfile,       [ :wand, :name, :profile, :ulong ], :magick_pass_fail
+    attach_function :MagickGetImageInterlaceScheme, [ :wand ], :interlace_type
+    attach_function :MagickSetImageInterlaceScheme, [ :wand, :interlace_type ], :magick_pass_fail
 
     attach_function :MagickResizeImage,           [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
     attach_function :MagickResampleImage,         [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail

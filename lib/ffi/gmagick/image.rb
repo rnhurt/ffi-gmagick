@@ -35,17 +35,80 @@ module FFI
       def width
         FFI::GMagick.MagickGetImageWidth( @wand ).to_f
       end
+      alias_method :cols, :width
 
       # Return the height of the image in pixels
       def height
         FFI::GMagick.MagickGetImageHeight( @wand ).to_f
       end
+      alias_method :rows, :height
 
       # Return the size of the image in bytes
       def size
         FFI::GMagick.MagickGetImageSize( @wand )
       end
       alias_method :length, :size
+
+      # Return the image format
+      def format
+        FFI::GMagick.MagickGetImageFormat( @wand )
+      end
+
+      # Set the image format
+      def format=(format)
+        FFI::GMagick.MagickSetImageFormat( @wand, format )
+      end
+
+      # Return the colorspace
+      def colorspace
+        FFI::GMagick.MagickGetImageColorspace( @wand )
+      end
+      alias_method :colormodel, :colorspace
+
+      # Set the image colorspace to one of the valid
+      # <a href="http://www.graphicsmagick.org/api/types.html#colorspacetype">colorspace types</a>.
+      def colorspace=(colorspace)
+        FFI::GMagick.MagickSetImageColorspace( @wand, colorspace )
+      end
+      alias_method :colormodel=, :colorspace=
+
+      # Return the information for a specific profile in the image
+      def profile(name="ICC")
+        output = nil
+        FFI::MemoryPointer.new(:ulong, 16) do |length|
+          blobout = FFI::GMagick.MagickGetImageProfile( @wand, name, length )
+          output  = blobout.read_string(length.read_long)
+        end
+        return output
+      end
+
+      # Add a profile to this image
+      def add_profile(name, profile)
+        status = FFI::GMagick.MagickProfileImage( @wand, name, profile, profile.size )
+        raise "invalid profile" unless 1 == status
+      end
+
+      # Return the interlace information as one of the valid
+      # <a href="http://www.graphicsmagick.org/api/types.html#interlacetype">interlace types</a>.
+      def interlace
+        FFI::GMagick.MagickGetImageInterlaceScheme( @wand )
+      end
+
+      # Set the interlace information to one of the valid
+      # <a href="http://www.graphicsmagick.org/api/types.html#interlacetype">interlace types</a>.
+      def interlace=(interlace)
+        status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
+        raise "invalid interlace type" unless 1 == status
+      end
+
+      # Strip the image of extra data (comments, profiles, etc.)
+      def strip
+        FFI::GMagick.MagickStripImage( @wand )
+      end
+
+      def quality=(quality)
+        FFI::GMagick.MagickSetCompressionQuality( @wand, quality )
+      end
 
       # Read image data from a BLOB
       def from_blob(blob)
@@ -57,7 +120,7 @@ module FFI
       # Write image data to a BLOB
       def to_blob
         output = nil
-        FFI::MemoryPointer.new(:ulong, 2) do |length|
+        FFI::MemoryPointer.new(:ulong, 16) do |length|
           blobout = FFI::GMagick.MagickWriteImageBlob( @wand, length )
           output = blobout.read_string(length.read_long)
         end
@@ -96,32 +159,39 @@ module FFI
         FFI::GMagick.MagickCropImage( @wand, width, height, x, y )
       end
 
-      # Creates a thumbnail of the image to the specified height & width.
-      # Optionally, it will create a square thumbnail based on the given width.
+      # A convenience method. Resize the image to fit within the specified
+      # dimensions while retaining the aspect ratio of the original image.
+      # If necessary, crop the image in the larger dimension.
       #
       # Returns a new image object
-      def thumbnail(new_width, new_height=new_width, square=false)
-        local_wand = FFI::GMagick::Image.new(@wand)
+      def resize_to_fill(new_width, new_height=nil)
+        new_height  ||= new_width
+        local_image = FFI::GMagick::Image.new(@wand)
 
-        width       = local_wand.width
-        height      = local_wand.height
-        new_width   = new_width.to_f
-        new_height  = new_height.to_f
-
-        new_height  = new_width if square
-
-        if new_width != width || new_height != height
-          scale = [new_width/width, new_height/height].max
-          local_wand.resize(scale*width+0.5, scale*height+0.5)
+        if new_width != local_image.width || new_height != local_image.height
+          scale = [new_width/local_image.width.to_f, new_height/local_image.height.to_f].max
+          local_image.resize(scale*width+0.5, scale*height+0.5)
         end
 
-        width  = local_wand.width
-        height = local_wand.height
-        if new_width != width || new_height != height
-          local_wand.crop(new_width, new_height)
+        if new_width != local_image.width || new_height != local_image.height
+          local_image.crop(new_width, new_height)
         end
 
-        return local_wand
+        return local_image
+      end
+
+      # A convenience method. Resize the image to fit within the
+      # specified dimensions while retaining the original aspect
+      # ratio. The image may be shorter or narrower than specified
+      # in the smaller dimension but will not be larger than the
+      # specified values.
+      #
+      # Returns a new image object
+      def resize_to_fit(width, height=nil)
+        height ||= width
+        geometry = "#{width}x#{height}>"
+        local_wand = FFI::GMagick.MagickTransformImage( @wand, "", geometry )
+        return FFI::GMagick::Image.new(local_wand)
       end
 
       # Composites an Image (such as a watermark) with this one using various
@@ -144,7 +214,7 @@ module FFI
       # Return the copywrite notification for GraphicsMagick
       def copywrite
         FFI::GMagick.MagickGetCopyright
-      end
     end
+      end
   end
 end
