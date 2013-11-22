@@ -1,5 +1,9 @@
 # FFI::GMagick
 
+FFI wrapper for the GraphicsMagick image processing library.
+
+## Introduction
+
 This Gem provides an FFI wrapper for the GraphicsMagick image processing library.  All of the
 other *Magick Gems I found either only worked with ImageMagick or were simply wrappers around
 the command line interfaces.  These are great Gems but I needed to work with images in RAM
