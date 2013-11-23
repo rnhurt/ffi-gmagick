@@ -20,7 +20,8 @@ module FFI
   #
   module GMagick
     extend  FFI::Library
-    ffi_lib "GraphicsMagickWand"
+    ffi_lib "GraphicsMagickWand"      if RUBY_PLATFORM =~ /darwin/
+    ffi_lib "GraphicsMagickWand.so.2" if RUBY_PLATFORM =~ /linux/
 
     enum :interlace_type,     [:UndefinedInterlace, :NoInterlace, :LineInterlace, :PlaneInterlace, :PartitionInterlace]
 
