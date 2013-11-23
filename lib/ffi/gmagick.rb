@@ -28,6 +28,12 @@ module FFI
                               :HermiteFilter, :HanningFilter, :HammingFilter, :BlackmanFilter,
                               :GaussianFilter, :QuadraticFilter, :CubicFilter, :CatromFilter,
                               :MitchellFilter, :LanczosFilter, :BesselFilter, :SincFilter]
+    enum :channel_type,       [:UndefinedChannel, :RedChannel, :CyanChannel, :GreenChannel, :MagentaChannel,
+                              :BlueChannel, :YellowChannel, :OpacityChannel, :BlackChannel, :MatteChannel,
+                              :AllChannels, :GrayChannel]
+
+    enum :image_type,         [:UndefinedType, :BilevelType, :GrayscaleType, :PaletteType, :PaletteMatteType,
+                              :TrueColorType, :TrueColorMatteType, :ColorSeparationType]
 
     enum :colorspace,         [:UndefinedColorspace, :RGBColorspace, :GRAYColorspace,
                               :TransparentColorspace, :OHTAColorspace, :XYZColorspace, :YCCColorspace,
@@ -62,6 +68,7 @@ module FFI
     typedef :uint,    :magick_pass_fail
     typedef :uint,    :dither
     typedef :uint,    :measure_error
+    typedef :uint,    :gray
     typedef :ulong,   :columns
     typedef :ulong,   :rows
     typedef :ulong,   :depth
@@ -75,6 +82,7 @@ module FFI
     typedef :double,  :blur
     typedef :double,  :radius
     typedef :double,  :sigma
+    typedef :double,  :gamma
     typedef :double,  :amount
     typedef :double,  :threshold
     typedef :double,  :x_resolution
@@ -95,6 +103,8 @@ module FFI
     attach_function :MagickSetImageFormat,        [ :wand, :format ], :uint
     attach_function :MagickGetImageHeight,        [ :wand ], :ulong
     attach_function :MagickGetImageWidth,         [ :wand ], :ulong
+    attach_function :MagickGetImageType,          [ :wand ], :image_type
+    attach_function :MagickSetImageType,          [ :wand, :image_type ], :magick_pass_fail
     attach_function :MagickGetImageAttribute,     [ :wand, :string ], :string
     attach_function :MagickGetImageColorspace,    [ :wand ], :colorspace
     attach_function :MagickSetImageColorspace,    [ :wand, :colorspace ], :magick_pass_fail
@@ -106,8 +116,8 @@ module FFI
     attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
     attach_function :MagickUnsharpMaskImage,      [ :wand, :radius, :sigma, :amount, :threshold ], :magick_pass_fail
     attach_function :MagickQuantizeImage,         [ :wand, :number_colors, :colorspace, :tree_depth, :dither, :measure_error ], :magick_pass_fail
-    attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
-
+    attach_function :MagickNegateImageChannel,    [ :wand, :channel_type, :gray ], :magick_pass_fail
+    attach_function :MagickGammaImageChannel,     [ :wand, :channel_type, :gamma ], :magick_pass_fail
     attach_function :MagickProfileImage,          [ :wand, :name, :profile, :length], :magick_pass_fail
     attach_function :MagickGetImageProfile,       [ :wand, :name, :profile ], :profile
     attach_function :MagickSetImageProfile,       [ :wand, :name, :profile, :ulong ], :magick_pass_fail

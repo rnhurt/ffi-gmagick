@@ -21,7 +21,7 @@ module FFI
       #
       # This will open two images, a picture and a watermark, create a square
       # thumbnail and apply the watermark in the center of the image.
-      attr_accessor   :wand
+      attr_accessor   :wand, :status
 
       def initialize(old_wand=nil)
         if old_wand
@@ -29,6 +29,36 @@ module FFI
         else
           @wand ||= FFI::GMagick.NewMagickWand
         end
+        @status = 1
+      end
+
+      # Read image data from a BLOB
+      def from_blob(blob)
+        @status = FFI::GMagick.MagickReadImageBlob( @wand, blob, blob.bytesize)
+
+        # Note: PDF images don't report proper bytesize
+        return blob.bytesize
+      end
+
+      # Write image data to a BLOB
+      def to_blob
+        output = nil
+        FFI::MemoryPointer.new(:ulong, 64) do |length|
+          blobout = FFI::GMagick.MagickWriteImageBlob( @wand, length )
+          output = blobout.read_string(length.read_long)
+        end
+        return output
+      end
+
+      # Read image data from a filename
+      def from_file(filename)
+        blob = File.open(filename).read
+        self.from_blob(blob)
+      end
+
+      # Write image data to a filename
+      def to_file(filename)
+        @status = FFI::GMagick.MagickWriteImage( @wand, filename )
       end
 
       # Return the width of the image in pixels
@@ -59,6 +89,32 @@ module FFI
         FFI::GMagick.MagickSetImageFormat( @wand, format )
       end
 
+      # Negate the colors in the specified channel
+      def negate_channel(channel, gray=0)
+        @status = FFI::GMagick.MagickNegateImageChannel( @wand, channel, gray )
+      end
+
+      # Set the gamma value for the specified channel
+      def gamma_channel(channel, gamma=0)
+        @status = FFI::GMagick.MagickGammaImageChannel( @wand, channel, gamma )
+      end
+
+      # Return the value of the named attribute
+      def attribute(name)
+        FFI::GMagick.MagickGetImageAttribute( @wand, name )
+      end
+
+      # Return the image type
+      def type
+        FFI::GMagick.MagickGetImageType( @wand )
+      end
+
+      # Set the image type to one of the valid
+      # <a href="http://www.graphicsmagick.org/api/types.html#imagetype">image types</a>
+      def type=(type)
+        @status = FFI::GMagick.MagickSetImageType( @wand, type )
+      end
+
       # Return the colorspace
       def colorspace
         FFI::GMagick.MagickGetImageColorspace( @wand )
@@ -75,7 +131,7 @@ module FFI
       # Return the information for a specific profile in the image
       def profile(name="ICC")
         output = nil
-        FFI::MemoryPointer.new(:ulong, 16) do |length|
+        FFI::MemoryPointer.new(:ulong, 64) do |length|
           blobout = FFI::GMagick.MagickGetImageProfile( @wand, name, length )
           output  = blobout.read_string(length.read_long)
         end
@@ -84,7 +140,7 @@ module FFI
 
       # Add a profile to this image
       def add_profile(name, profile)
-        status = FFI::GMagick.MagickProfileImage( @wand, name, profile, profile.size )
+        @status = FFI::GMagick.MagickProfileImage( @wand, name, profile, profile.size )
         raise "invalid profile" unless 1 == status
       end
 
@@ -97,51 +153,23 @@ module FFI
       # Set the interlace information to one of the valid
       # <a href="http://www.graphicsmagick.org/api/types.html#interlacetype">interlace types</a>.
       def interlace=(interlace)
-        status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
+        @status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
         raise "invalid interlace type" unless 1 == status
       end
 
       # Strip the image of extra data (comments, profiles, etc.)
       def strip
-        FFI::GMagick.MagickStripImage( @wand )
+        @status = FFI::GMagick.MagickStripImage( @wand )
       end
 
       def quality=(quality)
-        FFI::GMagick.MagickSetCompressionQuality( @wand, quality )
-      end
-
-      # Read image data from a BLOB
-      def from_blob(blob)
-        status = FFI::GMagick.MagickReadImageBlob( @wand, blob, blob.bytesize)
-        raise "invalid image" unless 1 == status
-        return blob.bytesize
-      end
-
-      # Write image data to a BLOB
-      def to_blob
-        output = nil
-        FFI::MemoryPointer.new(:ulong, 16) do |length|
-          blobout = FFI::GMagick.MagickWriteImageBlob( @wand, length )
-          output = blobout.read_string(length.read_long)
-        end
-        return output
-      end
-
-      # Read image data from a filename
-      def from_file(filename)
-        blob = File.open(filename).read
-        self.from_blob(blob)
-      end
-
-      # Write image data to a filename
-      def to_file(filename)
-        status = FFI::GMagick.MagickWriteImage( @wand, filename )
+        @status = FFI::GMagick.MagickSetCompressionQuality( @wand, quality )
       end
 
       # Resize the image to the desired dimensions using various
       # <a href="http://www.graphicsmagick.org/api/types.html#filtertypes">filters</a>.
       def resize(width, height, filter=:BoxFilter, blur=1.0)
-        FFI::GMagick.MagickResizeImage( @wand, width, height, filter, blur )
+        @status = FFI::GMagick.MagickResizeImage( @wand, width, height, filter, blur )
       end
 
 
@@ -156,7 +184,7 @@ module FFI
           y = (old_height / 2) - (height / 2)
         end
 
-        FFI::GMagick.MagickCropImage( @wand, width, height, x, y )
+        @status = FFI::GMagick.MagickCropImage( @wand, width, height, x, y )
       end
 
       # A convenience method. Resize the image to fit within the specified
@@ -208,13 +236,18 @@ module FFI
           x = (width / 2) - (new_width / 2)
           y = (height / 2) - (new_height / 2)
         end
-        status = FFI::GMagick.MagickCompositeImage(@wand, image.wand, operator, x, y)
+        @status = FFI::GMagick.MagickCompositeImage(@wand, image.wand, operator, x, y)
+      end
+
+      # Is this a valid image
+      def valid?
+        @status == 1
       end
 
       # Return the copywrite notification for GraphicsMagick
       def copywrite
         FFI::GMagick.MagickGetCopyright
-    end
       end
+    end
   end
 end
