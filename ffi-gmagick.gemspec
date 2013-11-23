@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
                         raw 'C' implementation.  As such, it may be a bit more difficult to
                         work with than something like rmagick, but it should perform just as
                         well."
-  spec.homepage      = "http://www.github.com/rnhurt/ffi-gmagick"
+  spec.homepage      = "https://github.com/rnhurt/ffi-gmagick"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
