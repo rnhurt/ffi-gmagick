@@ -1,4 +1,4 @@
-# FFI::GMagick
+# FFI::GMagick (incomplete)
 
 FFI wrapper for the GraphicsMagick image processing library.
 
@@ -10,7 +10,7 @@ the command line interfaces.  These are great Gems but I needed to work with ima
 and not hit the hard drive at all.  So, I created this Gem to allow me to work with images
 completely in RAM without touching the file system at all.
 
-[![Build Status](https://travis-ci.org/rnhurt/ffi-gmagick.png)](https://travis-ci.org/rnhurt/ffi-gmagick)
+_**NOTE: This library probably has memory leaks that you might need to be aware of.  You have been warned!**_
 
 ## Installation
 
