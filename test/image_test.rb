@@ -67,8 +67,13 @@ class ImageTest < MiniTest::Unit::TestCase
     assert_equal :TrueColorMatteType, @image.type, "invalid type"
   end
 
+  def test_set_interlace
+    @image.interlace = :PlaneInterlace
+    assert_equal :PlaneInterlace, @image.interlace, "invalid interlace"
+  end
+
   def test_set_type
-    skip # not yet working
+    skip
     @image.type = :TrueColorType
     assert @image.valid?
     assert_equal :TrueColorType, @image.type, "invalid type"

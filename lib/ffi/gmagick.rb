@@ -92,49 +92,53 @@ module FFI
     typedef :size_t,  :length
 
 
-    attach_function :NewMagickWand,               [], :wand
-    attach_function :DestroyMagickWand,           [ :wand ], :void
-    attach_function :CloneMagickWand,             [ :wand ], :wand
+    attach_function :NewMagickWand,                 [], :wand
+    attach_function :DestroyMagickWand,             [ :wand ], :void
+    attach_function :CloneMagickWand,               [ :wand ], :wand
 
-    attach_function :MagickReadImage,             [ :wand, :filename      ], :magick_pass_fail
-    attach_function :MagickReadImageBlob,         [ :wand, :blob, :length ], :magick_pass_fail
-    attach_function :MagickWriteImage,            [ :wand, :filename ], :magick_pass_fail
-    attach_function :MagickWriteImageBlob,        [ :wand, :pointer   ], :pointer
+    attach_function :MagickReadImage,               [ :wand, :filename      ], :magick_pass_fail
+    attach_function :MagickReadImageBlob,           [ :wand, :blob, :length ], :magick_pass_fail
+    attach_function :MagickWriteImage,              [ :wand, :filename ], :magick_pass_fail
+    attach_function :MagickWriteImageBlob,          [ :wand, :pointer   ], :pointer
 
-    attach_function :MagickGetImageFormat,        [ :wand ], :string
-    attach_function :MagickSetImageFormat,        [ :wand, :format ], :uint
-    attach_function :MagickGetImageHeight,        [ :wand ], :ulong
-    attach_function :MagickGetImageWidth,         [ :wand ], :ulong
-    attach_function :MagickGetImageType,          [ :wand ], :image_type
-    attach_function :MagickSetImageType,          [ :wand, :image_type ], :magick_pass_fail
-    attach_function :MagickGetImageAttribute,     [ :wand, :string ], :string
-    attach_function :MagickGetImageColorspace,    [ :wand ], :colorspace
-    attach_function :MagickSetImageColorspace,    [ :wand, :colorspace ], :magick_pass_fail
-    attach_function :MagickGetImageDepth,         [ :wand ], :depth
-    attach_function :MagickSetImageDepth,         [ :wand, :depth ], :magick_pass_fail
-    attach_function :MagickGetImageSize,          [ :wand ], :ulong
+    attach_function :MagickGetImageFormat,          [ :wand ], :string
+    attach_function :MagickSetImageFormat,          [ :wand, :format ], :uint
+    attach_function :MagickGetImageHeight,          [ :wand ], :ulong
+    attach_function :MagickGetImageWidth,           [ :wand ], :ulong
+    attach_function :MagickGetImageType,            [ :wand ], :image_type
+    attach_function :MagickSetImageType,            [ :wand, :image_type ], :magick_pass_fail
+    attach_function :MagickGetImageSavedType,       [ :wand ], :image_type
+    attach_function :MagickSetImageSavedType,       [ :wand, :image_type ], :magick_pass_fail
+    attach_function :MagickGetImageAttribute,       [ :wand, :string ], :string
+    attach_function :MagickGetImageColorspace,      [ :wand ], :colorspace
+    attach_function :MagickSetImageColorspace,      [ :wand, :colorspace ], :magick_pass_fail
+    attach_function :MagickGetImageDepth,           [ :wand ], :depth
+    attach_function :MagickSetImageDepth,           [ :wand, :depth ], :magick_pass_fail
+    attach_function :MagickGetImageSize,            [ :wand ], :ulong
 
-    attach_function :MagickSetCompressionQuality, [ :wand, :quality ], :magick_pass_fail
-    attach_function :MagickStripImage,            [ :wand ], :magick_pass_fail
-    attach_function :MagickUnsharpMaskImage,      [ :wand, :radius, :sigma, :amount, :threshold ], :magick_pass_fail
-    attach_function :MagickQuantizeImage,         [ :wand, :number_colors, :colorspace, :tree_depth, :dither, :measure_error ], :magick_pass_fail
-    attach_function :MagickNegateImageChannel,    [ :wand, :channel_type, :gray ], :magick_pass_fail
-    attach_function :MagickGammaImageChannel,     [ :wand, :channel_type, :gamma ], :magick_pass_fail
-    attach_function :MagickProfileImage,          [ :wand, :name, :profile, :length], :magick_pass_fail
-    attach_function :MagickGetImageProfile,       [ :wand, :name, :profile ], :profile
-    attach_function :MagickSetImageProfile,       [ :wand, :name, :profile, :ulong ], :magick_pass_fail
+    attach_function :MagickSetCompressionQuality,   [ :wand, :quality ], :magick_pass_fail
+    attach_function :MagickStripImage,              [ :wand ], :magick_pass_fail
+    attach_function :MagickUnsharpMaskImage,        [ :wand, :radius, :sigma, :amount, :threshold ], :magick_pass_fail
+    attach_function :MagickQuantizeImage,           [ :wand, :number_colors, :colorspace, :tree_depth, :dither, :measure_error ], :magick_pass_fail
+    attach_function :MagickNegateImageChannel,      [ :wand, :channel_type, :gray ], :magick_pass_fail
+    attach_function :MagickGammaImageChannel,       [ :wand, :channel_type, :gamma ], :magick_pass_fail
+    attach_function :MagickProfileImage,            [ :wand, :name, :profile, :length], :magick_pass_fail
+    attach_function :MagickGetImageProfile,         [ :wand, :name, :profile ], :profile
+    attach_function :MagickSetImageProfile,         [ :wand, :name, :profile, :ulong ], :magick_pass_fail
     attach_function :MagickGetImageInterlaceScheme, [ :wand ], :interlace_type
     attach_function :MagickSetImageInterlaceScheme, [ :wand, :interlace_type ], :magick_pass_fail
+    attach_function :MagickSetInterlaceScheme,      [ :wand, :interlace_type ], :magick_pass_fail
+    attach_function :MagickFlattenImages,           [ :wand ], :wand
 
-    attach_function :MagickResizeImage,           [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
-    attach_function :MagickResampleImage,         [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail
-    attach_function :MagickTransformImage,        [ :wand, :crop, :geometry ], :wand
-    attach_function :MagickScaleImage,            [ :wand, :columns, :rows ], :magick_pass_fail
-    attach_function :MagickCropImage,             [ :wand, :width, :height, :x, :y ], :magick_pass_fail
-    attach_function :MagickCompositeImage,        [ :wand, :composite_wand, :composite_operator, :x, :y ], :magick_pass_fail
+    attach_function :MagickResizeImage,             [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
+    attach_function :MagickResampleImage,           [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail
+    attach_function :MagickTransformImage,          [ :wand, :crop, :geometry ], :wand
+    attach_function :MagickScaleImage,              [ :wand, :columns, :rows ], :magick_pass_fail
+    attach_function :MagickCropImage,               [ :wand, :width, :height, :x, :y ], :magick_pass_fail
+    attach_function :MagickCompositeImage,          [ :wand, :composite_wand, :composite_operator, :x, :y ], :magick_pass_fail
 
-    attach_function :MagickGetConfigureInfo,      [ :wand, :string ], :string
-    attach_function :MagickGetVersion,            [ :pointer ], :string
-    attach_function :MagickGetCopyright,          [], :string
+    attach_function :MagickGetConfigureInfo,        [ :wand, :string ], :string
+    attach_function :MagickGetVersion,              [ :pointer ], :string
+    attach_function :MagickGetCopyright,            [], :string
   end
 end

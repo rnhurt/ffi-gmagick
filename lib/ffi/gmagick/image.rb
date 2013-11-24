@@ -113,12 +113,16 @@ module FFI
       # Return the image type
       def type
         FFI::GMagick.MagickGetImageType( @wand )
+        # FFI::GMagick.MagickGetImageSavedType( @wand )
       end
 
       # Set the image type to one of the valid
       # <a href="http://www.graphicsmagick.org/api/types.html#imagetype">image types</a>
       def type=(type)
-        @status = FFI::GMagick.MagickSetImageType( @wand, type )
+        status = FFI::GMagick.MagickSetImageType( @wand, type )
+        status += FFI::GMagick.MagickSetImageSavedType( @wand, type )
+        raise "invalid image type" unless 2 == status
+        @status = 1
       end
 
       # Return the colorspace
@@ -159,13 +163,21 @@ module FFI
       # Set the interlace information to one of the valid
       # <a href="http://www.graphicsmagick.org/api/types.html#interlacetype">interlace types</a>.
       def interlace=(interlace)
-        @status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
-        raise "invalid interlace type" unless 1 == status
+        status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
+        status += FFI::GMagick.MagickSetInterlaceScheme( @wand, interlace )
+        raise "invalid interlace type" unless 2 == status
+        @status = 1
       end
 
       # Strip the image of extra data (comments, profiles, etc.)
       def strip
         @status = FFI::GMagick.MagickStripImage( @wand )
+      end
+
+      # Merge existing layers into a single flattened image
+      def flatten
+        local_wand = FFI::GMagick.MagickFlattenImages( @wand )
+        return FFI::GMagick::Image.new(local_wand)
       end
 
       def quality=(quality)
