@@ -163,6 +163,7 @@ module FFI
       # Set the interlace information to one of the valid
       # <a href="http://www.graphicsmagick.org/api/types.html#interlacetype">interlace types</a>.
       def interlace=(interlace)
+        # Apparently, you have to set *both* of these for it stick.
         status = FFI::GMagick.MagickSetImageInterlaceScheme( @wand, interlace )
         status += FFI::GMagick.MagickSetInterlaceScheme( @wand, interlace )
         raise "invalid interlace type" unless 2 == status
