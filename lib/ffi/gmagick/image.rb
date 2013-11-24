@@ -32,6 +32,12 @@ module FFI
         @status = 1
       end
 
+      # Free the memory allocated to this object
+      def destroy!
+        FFI::GMagick.DestroyMagickWand( @wand )
+        @status = 0
+      end
+
       # Read image data from a BLOB
       def from_blob(blob)
         @status = FFI::GMagick.MagickReadImageBlob( @wand, blob, blob.bytesize)

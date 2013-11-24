@@ -57,6 +57,7 @@ module FFI
                               :LuminizeCompositeOp, :ScreenCompositeOp, :OverlayCompositeOp, :CopyCyanCompositeOp,
                               :CopyMagentaCompositeOp, :CopyYellowCompositeOp, :CopyBlackCompositeOp, :DivideCompositeOp]
 
+
     typedef :pointer, :wand
     typedef :pointer, :composite_wand
     typedef :pointer, :blob
@@ -91,8 +92,8 @@ module FFI
     typedef :size_t,  :length
 
 
-
     attach_function :NewMagickWand,               [], :wand
+    attach_function :DestroyMagickWand,           [ :wand ], :void
     attach_function :CloneMagickWand,             [ :wand ], :wand
 
     attach_function :MagickReadImage,             [ :wand, :filename      ], :magick_pass_fail

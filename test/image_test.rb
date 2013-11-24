@@ -6,6 +6,11 @@ class ImageTest < MiniTest::Unit::TestCase
     @image.from_blob(BLOB)
   end
 
+  def test_destroy
+    assert @image.destroy!
+    refute @image.valid?
+  end
+
   def test_size
     assert_equal 2005, @image.size, "BLOBs are not equal"
   end
