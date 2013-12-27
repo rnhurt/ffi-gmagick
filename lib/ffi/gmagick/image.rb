@@ -269,12 +269,12 @@ module FFI
       end
 
       # Returns the number of unique colors in the image
-      def get_color_count
+      def colorcount
         return FFI::GMagick.MagickGetImageColors( @wand )
       end
 
       # Get a simplified histogram for this image.
-      def get_histogram(web_safe=false)
+      def histogram(web_safe=false)
         new_wand = FFI::GMagick.CloneMagickWand( @wand )
 
         # "WebSafe" colors are built around the original 216 colors defined by Netscape
