@@ -22,41 +22,8 @@ module FFI
     extend  FFI::Library
     ffi_lib "GraphicsMagickWand"      if RUBY_PLATFORM =~ /darwin/
     ffi_lib "GraphicsMagickWand.so.2" if RUBY_PLATFORM =~ /linux/
-
-    enum :interlace_type,     [:UndefinedInterlace, :NoInterlace, :LineInterlace, :PlaneInterlace, :PartitionInterlace]
-
-    enum :filter_type,        [:UndefinedFilter, :PointFilter, :BoxFilter, :TriangleFilter,
-                              :HermiteFilter, :HanningFilter, :HammingFilter, :BlackmanFilter,
-                              :GaussianFilter, :QuadraticFilter, :CubicFilter, :CatromFilter,
-                              :MitchellFilter, :LanczosFilter, :BesselFilter, :SincFilter]
-    enum :channel_type,       [:UndefinedChannel, :RedChannel, :CyanChannel, :GreenChannel, :MagentaChannel,
-                              :BlueChannel, :YellowChannel, :OpacityChannel, :BlackChannel, :MatteChannel,
-                              :AllChannels, :GrayChannel]
-
-    enum :image_type,         [:UndefinedType, :BilevelType, :GrayscaleType, :PaletteType, :PaletteMatteType,
-                              :TrueColorType, :TrueColorMatteType, :ColorSeparationType]
-
-    enum :colorspace,         [:UndefinedColorspace, :RGBColorspace, :GRAYColorspace,
-                              :TransparentColorspace, :OHTAColorspace, :XYZColorspace, :YCCColorspace,
-                              :YIQColorspace, :YPbPrColorspace, :YUVColorspace, :CMYKColorspace,
-                              :sRGBColorspace, :HSLColorspace, :HWBColorspace, :LABColorspace,
-                              :CineonLogRGBColorspace, :Rec601LumaColorspace, :Rec601YCbCrColorspace,
-                              :Rec709LumaColorspace, :Rec709YCbCrColorspace]
-
-    enum :gravity_type,       [:ForgetGravity, :NorthWestGravity, :NorthGravity, :NorthEastGravity,
-                              :WestGravity, :CenterGravity, :EastGravity, :SouthWestGravity,
-                              :SouthGravity, :SouthEastGravity]
-
-    enum :composite_operator, [:UndefinedCompositeOp, :OverCompositeOp, :InCompositeOp, :OutCompositeOp,
-                              :AtopCompositeOp, :XorCompositeOp, :PlusCompositeOp, :MinusCompositeOp,
-                              :AddCompositeOp, :SubtractCompositeOp, :DifferenceCompositeOp, :BumpmapCompositeOp,
-                              :CopyCompositeOp, :CopyRedCompositeOp, :CopyGreenCompositeOp, :CopyBlueCompositeOp,
-                              :CopyOpacityCompositeOp, :ClearCompositeOp, :DissolveCompositeOp, :DisplaceCompositeOp,
-                              :ModulateCompositeOp, :ThresholdCompositeOp, :NoCompositeOp, :DarkenCompositeOp,
-                              :LightenCompositeOp, :HueCompositeOp, :SaturateCompositeOp, :ColorizeCompositeOp,
-                              :LuminizeCompositeOp, :ScreenCompositeOp, :OverlayCompositeOp, :CopyCyanCompositeOp,
-                              :CopyMagentaCompositeOp, :CopyYellowCompositeOp, :CopyBlackCompositeOp, :DivideCompositeOp]
-
+    require "ffi/gmagick/struct"
+    require "ffi/gmagick/pixel"
 
     typedef :pointer, :wand
     typedef :pointer, :composite_wand
@@ -71,6 +38,7 @@ module FFI
     typedef :uint,    :dither
     typedef :uint,    :measure_error
     typedef :uint,    :gray
+    typedef :uint,    :dither
     typedef :ulong,   :columns
     typedef :ulong,   :rows
     typedef :ulong,   :depth
@@ -129,6 +97,8 @@ module FFI
     attach_function :MagickSetImageInterlaceScheme, [ :wand, :interlace_type ], :magick_pass_fail
     attach_function :MagickSetInterlaceScheme,      [ :wand, :interlace_type ], :magick_pass_fail
     attach_function :MagickFlattenImages,           [ :wand ], :wand
+    attach_function :MagickMapImage,                [ :wand, :wand, :dither ], :magick_pass_fail
+    attach_function :MagickGetImageHistogram,       [ :wand, :pointer ], :pointer
 
     attach_function :MagickResizeImage,             [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
     attach_function :MagickResampleImage,           [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail

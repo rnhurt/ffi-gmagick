@@ -181,6 +181,39 @@ module FFI
         return FFI::GMagick::Image.new(local_wand)
       end
 
+      def get_histogram
+        # netscape = FFI::GMagick.NewMagickWand
+        # FFI::GMagick.MagickReadImage(netscape, 'NETSCAPE:')
+        # FFI::GMagick.MagickMapImage( @wand, netscape, 1 )
+        # netscape.destroy!
+
+        # pixel_array = FFI::GMagick::Pixel.new
+        # trap("INT") do
+        blah = nil
+        FFI::MemoryPointer.new(:int, 1) do |number_wands|
+          pointer   = FFI::GMagick.MagickGetImageHistogram( @wand, number_wands )
+          wand_counter  = number_wands.read_int
+          p "loaded '#{wand_counter}' wands..."
+
+          # p pixel_array.class
+          # pixel = FFI::GMagick::Pixel.new(pixel_array)
+          # p pixel
+          pixel_array = pointer.read_array_of_pointer(wand_counter)
+          pixel_array.each do |pixel|
+            p pixel
+          end
+
+          # (1..wand_counter).each do |pw|
+          #   pointer = pixel_array.get_pointer(pw)
+          #   p pointer.class
+          #   # pointer.read_array_of_type(PixelWand, FFI::GMagick::PixelWand.size, 1)
+          # end
+        end
+
+        return blah
+      end
+
+      # Change the quality (compression) of the image
       def quality=(quality)
         @status = FFI::GMagick.MagickSetCompressionQuality( @wand, quality )
       end
