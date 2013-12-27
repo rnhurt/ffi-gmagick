@@ -280,21 +280,24 @@ module FFI
         end
 
         histogram = {}
+        total_color_count = 0.0
         FFI::MemoryPointer.new(:ulong, 1) do |max_colors|
           pointer   = FFI::GMagick.MagickGetImageHistogram( new_wand, max_colors )
-          number_of_colors = max_colors.read_int
+          number_of_colors  = max_colors.read_int
 
           pixel_wands = pointer.read_array_of_pointer(number_of_colors)
           pixel_wands.each do |wand|
             pixel = FFI::GMagick::Pixel.new(wand)
             hex_color   = "#%02X%02X%02X" % pixel.get_color.split(",").map(&:to_i)
             color_count = pixel.get_color_count
+            total_color_count   += color_count
             histogram[hex_color] = color_count
           end
         end
         FFI::GMagick.DestroyMagickWand( new_wand )
 
-        return histogram
+        # Convert distribution to %
+        return histogram.map{|k,v| {k => v / total_color_count}}
       end
 
       # Change the quality (compression) of the image
