@@ -274,7 +274,7 @@ module FFI
       end
 
       # Get a simplified histogram for this image.
-      def get_histogram(web_safe=true)
+      def get_histogram(web_safe=false)
         new_wand = FFI::GMagick.CloneMagickWand( @wand )
 
         # "WebSafe" colors are built around the original 216 colors defined by Netscape
@@ -285,22 +285,25 @@ module FFI
           FFI::GMagick.DestroyMagickWand( netscape )
         end
 
+        total_color_count = 0.0
         histogram = {}
-        number_of_colors = FFI::GMagick.MagickGetImageColors(new_wand).to_f
-
         FFI::MemoryPointer.new(:ulong, 1) do |max_colors|
           pointer   = FFI::GMagick.MagickGetImageHistogram( new_wand, max_colors )
+          number_of_colors  = max_colors.read_int
 
-          pixel_wands = pointer.read_array_of_pointer(max_colors.read_int)
+          pixel_wands = pointer.read_array_of_pointer(number_of_colors)
           pixel_wands.each do |wand|
             pixel = FFI::GMagick::Pixel.new(wand)
             hex_color   = "#%02X%02X%02X" % pixel.get_color.split(",").map(&:to_i)
-            histogram[hex_color] = (pixel.get_color_count / number_of_colors)
+            color_count = pixel.get_color_count
+            total_color_count   += color_count
+            histogram[hex_color] = color_count
           end
         end
         FFI::GMagick.DestroyMagickWand( new_wand )
 
-        return histogram
+        # Convert distribution to %
+        return histogram.map{|k,v| {k => v / total_color_count}}
       end
 
       # Change the quality (compression) of the image
