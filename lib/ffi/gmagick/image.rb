@@ -73,6 +73,7 @@ module FFI
     attach_function :MagickFlattenImages,           [ :wand ], :wand
     attach_function :MagickMapImage,                [ :wand, :wand, :dither ], :magick_pass_fail
     attach_function :MagickGetImageHistogram,       [ :wand, :pointer ], :pointer
+    attach_function :MagickGetImageColors,          [ :wand ], :ulong
 
     attach_function :MagickResizeImage,             [ :wand, :columns, :rows, :filter_type, :blur ], :magick_pass_fail
     attach_function :MagickResampleImage,           [ :wand, :x_resolution, :y_resolution, :filter_type, :blur ], :magick_pass_fail
@@ -267,6 +268,11 @@ module FFI
         return FFI::GMagick::Image.new(local_wand)
       end
 
+      # Returns the number of unique colors in the image
+      def get_color_count
+        return FFI::GMagick.MagickGetImageColors( @wand )
+      end
+
       # Get a simplified histogram for this image.
       def get_histogram(web_safe=true)
         new_wand = FFI::GMagick.CloneMagickWand( @wand )
@@ -280,24 +286,21 @@ module FFI
         end
 
         histogram = {}
-        total_color_count = 0.0
+        number_of_colors = FFI::GMagick.MagickGetImageColors(new_wand).to_f
+
         FFI::MemoryPointer.new(:ulong, 1) do |max_colors|
           pointer   = FFI::GMagick.MagickGetImageHistogram( new_wand, max_colors )
-          number_of_colors  = max_colors.read_int
 
-          pixel_wands = pointer.read_array_of_pointer(number_of_colors)
+          pixel_wands = pointer.read_array_of_pointer(max_colors.read_int)
           pixel_wands.each do |wand|
             pixel = FFI::GMagick::Pixel.new(wand)
             hex_color   = "#%02X%02X%02X" % pixel.get_color.split(",").map(&:to_i)
-            color_count = pixel.get_color_count
-            total_color_count   += color_count
-            histogram[hex_color] = color_count
+            histogram[hex_color] = (pixel.get_color_count / number_of_colors)
           end
         end
         FFI::GMagick.DestroyMagickWand( new_wand )
 
-        # Convert distribution to %
-        return histogram.map{|k,v| {k => v / total_color_count}}
+        return histogram
       end
 
       # Change the quality (compression) of the image
