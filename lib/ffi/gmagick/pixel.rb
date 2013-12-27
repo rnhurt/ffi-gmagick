@@ -11,6 +11,7 @@ module FFI
     attach_function :ClonePixelWand,                [ :wand ], PixelWand.ptr
     attach_function :DestroyPixelWand,              [ PixelWand.ptr ], :magick_pass_fail
     attach_function :PixelGetColorAsString,         [ :wand ], :string
+    attach_function :PixelGetColorCount,            [ :wand ], :ulong
 
     class Pixel
       attr_accessor   :wand, :status
@@ -32,6 +33,10 @@ module FFI
 
       def get_color
         return FFI::GMagick.PixelGetColorAsString( @wand )
+      end
+
+      def get_color_count
+        return FFI::GMagick.PixelGetColorCount( @wand )
       end
     end
   end

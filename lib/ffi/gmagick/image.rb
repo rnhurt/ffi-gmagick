@@ -181,36 +181,34 @@ module FFI
         return FFI::GMagick::Image.new(local_wand)
       end
 
-      def get_histogram
-        # netscape = FFI::GMagick.NewMagickWand
-        # FFI::GMagick.MagickReadImage(netscape, 'NETSCAPE:')
-        # FFI::GMagick.MagickMapImage( @wand, netscape, 1 )
-        # netscape.destroy!
+      # Get a simplified histogram for this image.
+      def get_histogram(web_safe=true)
+        new_wand = FFI::GMagick.CloneMagickWand( @wand )
 
-        # pixel_array = FFI::GMagick::Pixel.new
-        # trap("INT") do
-        blah = nil
-        FFI::MemoryPointer.new(:int, 1) do |number_wands|
-          pointer   = FFI::GMagick.MagickGetImageHistogram( @wand, number_wands )
-          wand_counter  = number_wands.read_int
-          p "loaded '#{wand_counter}' wands..."
-
-          # p pixel_array.class
-          # pixel = FFI::GMagick::Pixel.new(pixel_array)
-          # p pixel
-          pixel_array = pointer.read_array_of_pointer(wand_counter)
-          pixel_array.each do |pixel|
-            p pixel
-          end
-
-          # (1..wand_counter).each do |pw|
-          #   pointer = pixel_array.get_pointer(pw)
-          #   p pointer.class
-          #   # pointer.read_array_of_type(PixelWand, FFI::GMagick::PixelWand.size, 1)
-          # end
+        # "WebSafe" colors are built around the original 216 colors defined by Netscape
+        if web_safe
+          netscape = FFI::GMagick.NewMagickWand
+          FFI::GMagick.MagickReadImage(netscape, 'NETSCAPE:')
+          FFI::GMagick.MagickMapImage( new_wand, netscape, 1 )
+          FFI::GMagick.DestroyMagickWand( netscape )
         end
 
-        return blah
+        histogram = {}
+        FFI::MemoryPointer.new(:ulong, 1) do |max_colors|
+          pointer   = FFI::GMagick.MagickGetImageHistogram( new_wand, max_colors )
+          number_of_colors = max_colors.read_int
+
+          pixel_wands = pointer.read_array_of_pointer(number_of_colors)
+          pixel_wands.each do |wand|
+            pixel = FFI::GMagick::Pixel.new(wand)
+            hex_color   = "#%02X%02X%02X" % pixel.get_color.split(",").map(&:to_i)
+            color_count = pixel.get_color_count
+            histogram[hex_color] = color_count
+          end
+        end
+        FFI::GMagick.DestroyMagickWand( new_wand )
+
+        return histogram
       end
 
       # Change the quality (compression) of the image

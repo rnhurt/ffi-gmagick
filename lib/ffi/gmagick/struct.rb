@@ -17,10 +17,10 @@ module FFI
     end
 
     class PixelWand < FFI::Struct
-      layout  :exception,   ExceptionInfo.ptr,
+      layout  :exception,   ExceptionInfo.by_ref,
               :colorspace,  :colorspace,
               :matte,       :uint,
-              :pixel,       PixelPacket.ptr,
+              :pixel,       PixelPacket.by_ref,
               :count,       :ulong
     end
 
