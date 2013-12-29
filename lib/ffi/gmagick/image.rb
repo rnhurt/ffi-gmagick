@@ -303,7 +303,7 @@ module FFI
         FFI::GMagick.DestroyMagickWand( new_wand )
 
         # Convert distribution to %
-        return histogram.map{|k,v| {k => v / total_color_count}}
+        return histogram.map{|k,v| {k => (v / total_color_count) * 100}}
       end
 
       # Change the quality (compression) of the image
