@@ -302,8 +302,13 @@ module FFI
         end
         FFI::GMagick.DestroyMagickWand( new_wand )
 
-        # Convert distribution to %
-        return histogram.map{|k,v| {k => (v / total_color_count) * 100}}
+        # Convert values to percentage of colors and remove infinitesimal numbers
+        final = {}
+        histogram.map do |k,v|
+          final[k] = (v / total_color_count).round(3) if (v/total_color_count) >= 0.001
+        end
+
+        return final
       end
 
       # Change the quality (compression) of the image
