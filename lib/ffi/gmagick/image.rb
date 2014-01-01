@@ -58,6 +58,11 @@ module FFI
     attach_function :MagickSetImageDepth,           [ :wand, :depth ], :magick_pass_fail
     attach_function :MagickGetImageSize,            [ :wand ], :ulong
 
+    attach_function :MagickGetNumberImages,         [ :wand ], :ulong
+    attach_function :MagickNextImage,               [ :wand ], :magick_pass_fail
+    attach_function :MagickPreviousImage,           [ :wand ], :magick_pass_fail
+    attach_function :MagickRemoveImage,             [ :wand ], :magick_pass_fail
+
     attach_function :MagickSetCompressionQuality,   [ :wand, :quality ], :magick_pass_fail
     attach_function :MagickStripImage,              [ :wand ], :magick_pass_fail
     attach_function :MagickUnsharpMaskImage,        [ :wand, :radius, :sigma, :amount, :threshold ], :magick_pass_fail
@@ -171,6 +176,26 @@ module FFI
         FFI::GMagick.MagickGetImageSize( @wand )
       end
       alias_method :length, :size
+
+      # Return the number of images in this wand (sequence)
+      def count
+        return FFI::GMagick.MagickGetNumberImages( @wand )
+      end
+
+      # Go to the next image in the sequence
+      def next
+        @status = FFI::GMagick.MagickNextImage( @wand )
+      end
+
+      # Go to the previous image in the sequence
+      def previous
+        @status = FFI::GMagick.MagickPreviousImage( @wand )
+      end
+
+      # Remove the current image in the sequence
+      def remove
+        @status = FFI::GMagick.MagickRemoveImage( @wand )
+      end
 
       # Return the image format
       def format
