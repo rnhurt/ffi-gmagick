@@ -4,6 +4,7 @@ module FFI
     typedef :pointer, :composite_wand
     typedef :pointer, :blob
     typedef :pointer, :profile
+    typedef :pointer, :gravity
     typedef :string,  :name
     typedef :string,  :filename
     typedef :string,  :format
@@ -76,6 +77,7 @@ module FFI
     attach_function :MagickSetImageInterlaceScheme, [ :wand, :interlace_type ], :magick_pass_fail
     attach_function :MagickSetInterlaceScheme,      [ :wand, :interlace_type ], :magick_pass_fail
     attach_function :MagickFlattenImages,           [ :wand ], :wand
+    # attach_function :MagickSetImageGravity,         [ :wand, :gravity ], :magick_pass_fail
     attach_function :MagickMapImage,                [ :wand, :wand, :dither ], :magick_pass_fail
     attach_function :MagickGetImageHistogram,       [ :wand, :pointer ], :pointer
     attach_function :MagickGetImageColors,          [ :wand ], :ulong
@@ -177,6 +179,16 @@ module FFI
       end
       alias_method :length, :size
 
+      # Get the number of bits used to represent a single pixel
+      def depth
+        return FFI::GMagick.MagickGetImageDepth( @wand )
+      end
+
+      # Set the number of bits used to represent a single pixel
+      def depth=(depth=8)
+        @status = FFI::GMagick.MagickSetImageDepth( @wand, depth )
+      end
+
       # Return the number of images in this wand (sequence)
       def count
         return FFI::GMagick.MagickGetNumberImages( @wand )
@@ -241,14 +253,12 @@ module FFI
       def colorspace
         FFI::GMagick.MagickGetImageColorspace( @wand )
       end
-      alias_method :colormodel, :colorspace
 
       # Set the image colorspace to one of the valid
       # <a href="http://www.graphicsmagick.org/api/types.html#colorspacetype">colorspace types</a>.
       def colorspace=(colorspace)
         FFI::GMagick.MagickSetImageColorspace( @wand, colorspace )
       end
-      alias_method :colormodel=, :colorspace=
 
       # Return the information for a specific profile in the image
       def profile(name="ICC")
