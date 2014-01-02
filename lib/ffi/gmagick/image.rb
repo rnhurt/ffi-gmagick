@@ -179,12 +179,12 @@ module FFI
       end
       alias_method :length, :size
 
-      # Get the number of bits used to represent a single pixel
+      # Get the number of bits used to represent a single component of a pixel
       def depth
         return FFI::GMagick.MagickGetImageDepth( @wand )
       end
 
-      # Set the number of bits used to represent a single pixel
+      # Set the number of bits used to represent a single component of a pixel
       def depth=(depth=8)
         @status = FFI::GMagick.MagickSetImageDepth( @wand, depth )
       end

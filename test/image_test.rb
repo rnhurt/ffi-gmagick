@@ -60,7 +60,6 @@ class ImageTest < MiniTest::Unit::TestCase
 
   def test_colorspace
     assert_equal :RGBColorspace, @image.colorspace, "invalid color space"
-    assert_equal :RGBColorspace, @image.colormodel, "invalid color model"
   end
 
   def test_get_type
@@ -70,6 +69,15 @@ class ImageTest < MiniTest::Unit::TestCase
   def test_set_interlace
     @image.interlace = :PlaneInterlace
     assert_equal :PlaneInterlace, @image.interlace, "invalid interlace"
+  end
+
+  def test_get_depth
+    assert_equal 8, @image.depth
+  end
+
+  def test_set_depth
+    @image.depth = 2
+    assert_equal 2, @image.depth
   end
 
   def test_set_type
