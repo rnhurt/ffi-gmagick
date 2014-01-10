@@ -308,6 +308,11 @@ module FFI
         return FFI::GMagick.MagickGetImageColors( @wand )
       end
 
+      # Replace the colors of an image with the closest color from a reference image.
+      def map(reference_image, dither=0)
+        FFI::GMagick.MagickMapImage( @wand, reference_image.wand, dither )
+      end
+
       # Get a simplified histogram for this image.
       def histogram(web_safe=false)
         new_wand = FFI::GMagick.CloneMagickWand( @wand )
