@@ -126,6 +126,11 @@ module FFI
         @status = 1
       end
 
+      # Convenience method to duplicate an Image object
+      def clone
+        Image.new(@wand)
+      end
+
       # Free the memory allocated to this object
       def destroy!
         FFI::GMagick.DestroyMagickWand( @wand )
@@ -310,7 +315,7 @@ module FFI
 
       # Replace the colors of an image with the closest color from a reference image.
       def map(reference_image, dither=0)
-        FFI::GMagick.MagickMapImage( @wand, reference_image.wand, dither )
+        @status = FFI::GMagick.MagickMapImage( @wand, reference_image.wand, dither )
       end
 
       # Get a simplified histogram for this image.
