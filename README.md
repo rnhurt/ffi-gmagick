@@ -1,9 +1,10 @@
-# FFI::GMagick
+# FFI::GMagick 
 
 FFI wrapper for the GraphicsMagick image processing library.
 
 _**NOTE: This library probably has memory leaks that you might need to be aware of.  You have been warned!**_
 
+[![Project Status](https://stillmaintained.com/rnhurt/ffi-gmagick.png)](https://stillmaintained.com/rnhurt/ffi-gmagick)
 [![Code Climate](https://codeclimate.com/github/rnhurt/ffi-gmagick.png)](https://codeclimate.com/github/rnhurt/ffi-gmagick)
 
 ## Introduction
